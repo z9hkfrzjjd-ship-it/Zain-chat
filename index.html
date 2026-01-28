@@ -3,29 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZAIN NETWORK v18</title>
+    <title>ZAIN NETWORK v19</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style id="theme-style">
         :root { --bg: #313338; --side: #2b2d31; --accent: #5865f2; --text: #dbdee1; --msg-bg: #383a40; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; transition: 0.3s; }
-        .sidebar { width: 280px; background: var(--side); height: 100vh; display: flex; flex-direction: column; border-left: 1px solid rgba(0,0,0,0.2); position: fixed; right: 0; top: 0; bottom: 0; transition: transform 0.3s ease-in-out; z-index: 1000; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar { width: 300px; background: var(--side); height: 100vh; display: flex; flex-direction: column; border-left: 1px solid rgba(0,0,0,0.1); position: fixed; right: 0; top: 0; bottom: 0; transition: transform 0.4s ease; z-index: 1000; }
         .sidebar.hidden { transform: translateX(100%); }
         .main-content { flex: 1; display: flex; flex-direction: column; width: 100vw; height: 100vh; }
-        .toggle-btn { position: fixed; top: 10px; left: 10px; z-index: 2000; background: var(--accent); border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .toggle-btn { position: fixed; top: 15px; left: 15px; z-index: 2000; background: var(--accent); border: none; color: white; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
         .lock-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 3000; }
-        .box { background: var(--side); padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-top: 70px; }
-        .msg { max-width: 85%; padding: 10px 14px; border-radius: 15px; background: var(--msg-bg); align-self: flex-start; display: flex; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .box { background: var(--side); padding: 30px; border-radius: 20px; width: 85%; max-width: 340px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; padding-top: 80px; scroll-behavior: smooth; }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; background: var(--msg-bg); align-self: flex-start; display: flex; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg.mine { align-self: flex-end; background: var(--accent); color: white; flex-direction: row-reverse; }
         .msg-content { display: flex; flex-direction: column; max-width: 100%; }
-        .input-bar { padding: 15px; background: var(--side); display: flex; gap: 8px; padding-bottom: 30px; border-top: 1px solid rgba(0,0,0,0.1); }
-        input, select { padding: 12px; border-radius: 8px; border: none; background: rgba(0,0,0,0.2); color: white; outline: none; font-size: 16px; width: 100%; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #555; border: 2px solid var(--accent); flex-shrink: 0; }
-        .friend-card { background: var(--msg-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; gap: 10px; }
-        .friend-card.active { border-color: var(--accent); background: rgba(88, 101, 242, 0.1); }
-        img, video, iframe { max-width: 100%; border-radius: 10px; margin-top: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .input-bar { padding: 20px; background: var(--side); display: flex; gap: 10px; padding-bottom: 35px; border-top: 1px solid rgba(255,255,255,0.05); }
+        input, select { padding: 14px; border-radius: 12px; border: none; background: rgba(0,0,0,0.2); color: white; outline: none; font-size: 16px; width: 100%; transition: 0.3s; }
+        input:focus { background: rgba(0,0,0,0.3); box-shadow: 0 0 0 2px var(--accent); }
+        .avatar { width: 45px; height: 45px; border-radius: 15px; object-fit: cover; background: #444; border: 2px solid var(--accent); flex-shrink: 0; }
+        .friend-card { background: var(--msg-bg); padding: 12px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; gap: 12px; position: relative; transition: 0.3s; }
+        .friend-card:hover { transform: scale(1.02); }
+        .friend-card.active { border-color: var(--accent); background: rgba(88, 101, 242, 0.15); }
+        .delete-friend { position: absolute; left: 10px; top: 10px; color: #ed4245; font-size: 1.2rem; padding: 5px; opacity: 0.6; transition: 0.3s; }
+        .delete-friend:hover { opacity: 1; transform: scale(1.2); }
+        .friend-id-label { position: absolute; left: 10px; bottom: 8px; font-size: 0.6rem; opacity: 0.5; font-weight: bold; }
+        img, video, iframe { max-width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
@@ -34,34 +41,34 @@
 
 <div id="lockScreen" class="lock-screen">
     <div id="lockBox" class="box">
-        <h2>ZAIN NET</h2>
-        <input type="password" id="passInput" placeholder="الرمز الشخصي">
-        <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:12px; width:100%; border-radius:8px; margin-top:10px; cursor:pointer;">دخول</button>
-        <p onclick="openAdmin()" style="font-size:0.7rem; color:gray; cursor:pointer; margin-top:15px;">⚙️ الإعدادات</p>
+        <h1 style="margin-top:0; color:var(--accent);">ZAIN NET</h1>
+        <input type="password" id="passInput" placeholder="أدخل الرمز الشخصي">
+        <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:14px; width:100%; border-radius:12px; margin-top:15px; cursor:pointer; font-weight:bold; font-size:1rem;">دخول آمن</button>
+        <p onclick="openAdmin()" style="font-size:0.8rem; color:gray; cursor:pointer; margin-top:20px;">⚙️ الإعدادات المتقدمة</p>
     </div>
 </div>
 
 <button id="toggleBtn" class="toggle-btn" style="display:none;" onclick="toggleSidebar()">☰</button>
 
 <div class="sidebar" id="sidebar">
-    <div style="padding:25px; border-bottom:1px solid rgba(0,0,0,0.2); text-align:center;">
-        <img id="myPfp" src="" class="avatar" style="width:70px; height:70px; margin-bottom:10px;">
-        <div id="myName" style="font-weight:bold; font-size:1.1rem;"></div>
-        <div style="font-size:0.75rem; color:var(--accent); letter-spacing:1px;">ID: #<span id="myIDDisplay"></span></div>
+    <div style="padding:30px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:center;">
+        <img id="myPfp" src="" class="avatar" style="width:80px; height:80px; border-radius:25px; margin-bottom:15px; box-shadow: 0 8px 20px rgba(0,0,0,0.3);">
+        <div id="myName" style="font-weight:bold; font-size:1.2rem;"></div>
+        <div style="font-size:0.8rem; color:var(--accent); margin-top:5px; opacity:0.8;">معرّفك: #<span id="myIDDisplay"></span></div>
     </div>
-    <div style="padding:15px;">
-        <input type="text" id="addID" placeholder="أدخل ID الصديق">
-        <button onclick="addNewFriend()" style="background:var(--accent); color:white; border:none; width:100%; padding:10px; border-radius:8px; margin-top:8px; cursor:pointer;">إضافة صديق</button>
+    <div style="padding:20px;">
+        <input type="text" id="addID" placeholder="ID الصديق">
+        <button onclick="addNewFriend()" style="background:var(--accent); color:white; border:none; width:100%; padding:12px; border-radius:12px; margin-top:10px; cursor:pointer; font-weight:bold;">إضافة صديق جديد</button>
     </div>
-    <div id="friendsList" style="flex:1; overflow-y:auto; padding:10px;"></div>
-    <button onclick="location.reload()" style="background:#ed4245; border:none; color:white; padding:15px; width:100%; font-weight:bold; cursor:pointer;">خروج</button>
+    <div id="friendsList" style="flex:1; overflow-y:auto; padding:15px;"></div>
+    <button onclick="location.reload()" style="background:#ed4245; border:none; color:white; padding:18px; width:100%; font-weight:bold; cursor:pointer; font-size:1rem;">تسجيل الخروج</button>
 </div>
 
 <div class="main-content">
     <div id="messages"></div>
     <div class="input-bar">
-        <input type="text" id="msgIn" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') send()">
-        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:0 20px; border-radius:8px; cursor:pointer;">إرسال</button>
+        <input type="text" id="msgIn" placeholder="اكتب رسالتك هنا..." onkeypress="if(event.key==='Enter') send()">
+        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:0 25px; border-radius:12px; cursor:pointer; font-weight:bold;">إرسال</button>
     </div>
 </div>
 
@@ -70,7 +77,7 @@
     let pubnub;
     let myID = localStorage.getItem('zain_id') || Math.floor(Math.random() * 8999) + 1000;
     localStorage.setItem('zain_id', myID);
-    let friends = JSON.parse(localStorage.getItem('my_friends') || "[]");
+    let friends = JSON.parse(localStorage.getItem('my_friends_v2') || "[]"); // سجل أصدقاء جديد لدعم الأسماء
     let currentFid = null;
 
     const themes = {
@@ -92,19 +99,20 @@
         root.style.setProperty('--msg-bg', t.msg);
         localStorage.setItem('zain_theme', name);
     }
-
     applyTheme(localStorage.getItem('zain_theme') || 'default');
 
     function unlock() {
         const p = document.getElementById('passInput').value;
         const s = localStorage.getItem('my_pass') || "123";
         if(p !== s) return alert("الرمز خطأ!");
-        localStorage.setItem('my_pass', p);
-        document.getElementById('lockScreen').style.display = 'none';
-        document.getElementById('toggleBtn').style.display = 'block';
-        initPN();
-        loadUI();
-        renderFriends();
+        document.getElementById('lockScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.getElementById('toggleBtn').style.display = 'flex';
+            initPN();
+            loadUI();
+            renderFriends();
+        }, 400);
     }
 
     function loadUI() {
@@ -126,26 +134,41 @@
                 else if (m.message.uid != myID) document.getElementById('notifSound').play();
             }
         });
-        const subs = friends.map(id => "v8_chat_" + [myID, id].sort().join("_"));
+        const subs = friends.map(f => "v8_chat_" + [myID, f.id].sort().join("_"));
         if(subs.length > 0) pubnub.subscribe({ channels: subs });
     }
 
     function addNewFriend() {
         const id = document.getElementById('addID').value.trim();
-        if(!id || id == myID || friends.includes(id)) return;
-        friends.push(id);
-        localStorage.setItem('my_friends', JSON.stringify(friends));
+        if(!id || id == myID || friends.find(f => f.id == id)) return;
+        const name = prompt("ما هو اسم الصديق؟") || "صديق #" + id;
+        friends.push({id, name});
+        localStorage.setItem('my_friends_v2', JSON.stringify(friends));
         location.reload();
+    }
+
+    function removeFriend(id, e) {
+        e.stopPropagation();
+        if(confirm("هل تريد حذف هذا الصديق؟")) {
+            friends = friends.filter(f => f.id != id);
+            localStorage.setItem('my_friends_v2', JSON.stringify(friends));
+            location.reload();
+        }
     }
 
     function renderFriends() {
         const list = document.getElementById('friendsList');
         list.innerHTML = "";
-        friends.forEach(id => {
+        friends.forEach(f => {
             const div = document.createElement('div');
-            div.className = `friend-card ${currentFid == id ? 'active' : ''}`;
-            div.innerHTML = `<img src="https://www.gravatar.com/avatar/${id}?d=identicon" class="avatar" style="width:30px; height:30px;"> <span>صديق #${id}</span>`;
-            div.onclick = () => openChat(id);
+            div.className = `friend-card ${currentFid == f.id ? 'active' : ''}`;
+            div.innerHTML = `
+                <img src="https://www.gravatar.com/avatar/${f.id}?d=identicon" class="avatar" style="width:35px; height:35px; border-radius:10px;"> 
+                <span style="font-weight:bold;">${f.name}</span>
+                <span class="friend-id-label">#${f.id}</span>
+                <span class="delete-friend" onclick="removeFriend('${f.id}', event)">✕</span>
+            `;
+            div.onclick = () => openChat(f.id);
             list.appendChild(div);
         });
     }
@@ -162,7 +185,7 @@
     }
 
     function send() {
-        if(!currentFid) return;
+        if(!currentFid) return alert("اختر صديقاً أولاً");
         const inp = document.getElementById('msgIn');
         if(!inp.value.trim()) return;
         pubnub.publish({
@@ -187,28 +210,19 @@
         let msgText = data.text;
         let mediaHtml = "";
 
-        // فحص الصور
         const imgExt = /\.(jpg|jpeg|png|gif|webp)$/i;
-        if(imgExt.test(msgText)) {
-            mediaHtml = `<img src="${msgText}">`;
-        } 
-        // فحص يوتيوب
+        if(imgExt.test(msgText)) mediaHtml = `<img src="${msgText}">`;
         else if (msgText.includes("youtube.com") || msgText.includes("youtu.be")) {
-            let vidId = "";
-            if(msgText.includes("v=")) vidId = msgText.split("v=")[1].split("&")[0];
-            else vidId = msgText.split("/").pop().split("?")[0];
+            let vidId = msgText.includes("v=") ? msgText.split("v=")[1].split("&")[0] : msgText.split("/").pop().split("?")[0];
             mediaHtml = `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
         }
-        // فحص فيديو مباشر
-        else if (msgText.includes(".mp4") || msgText.includes(".mov")) {
-            mediaHtml = `<video controls><source src="${msgText}"></video>`;
-        }
+        else if (msgText.includes(".mp4") || msgText.includes(".mov")) mediaHtml = `<video controls><source src="${msgText}"></video>`;
 
         div.innerHTML = `
-            <img src="${data.pic}" class="avatar">
+            <img src="${data.pic}" class="avatar" style="width:35px; height:35px;">
             <div class="msg-content">
-                <div style="font-size:0.65rem; font-weight:bold; margin-bottom:2px; opacity:0.8;">${data.name} • ${data.time}</div>
-                <div style="font-size:0.95rem; line-height:1.4; word-break:break-word;">${msgText}</div>
+                <div style="font-size:0.7rem; font-weight:bold; margin-bottom:4px; opacity:0.8;">${data.name} • ${data.time}</div>
+                <div style="font-size:1rem; line-height:1.5;">${msgText}</div>
                 ${mediaHtml}
             </div>
         `;
@@ -217,14 +231,14 @@
     }
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
-    function openAdmin() { document.getElementById('lockBox').innerHTML = `<h3>الإعدادات</h3><input type="password" id="admK" placeholder="رمز المالك"><button onclick="checkAdm()" style="background:var(--accent); color:white; border:none; padding:10px; width:100%; border-radius:8px; margin-top:10px;">دخول</button>`; }
+    function openAdmin() { document.getElementById('lockBox').innerHTML = `<h3>الإعدادات</h3><input type="password" id="admK" placeholder="رمز المالك"><button onclick="checkAdm()" style="background:var(--accent); color:white; border:none; padding:12px; width:100%; border-radius:12px; margin-top:15px; font-weight:bold;">دخول</button>`; }
 
     function checkAdm() {
         if(document.getElementById('admK').value === OWNER_KEY) {
             document.getElementById('lockBox').innerHTML = `
-                <input type="text" id="newN" placeholder="الاسم" value="${localStorage.getItem('zain_name')||''}">
-                <input type="text" id="newP" placeholder="رابط صورة البروفايل" value="${localStorage.getItem('zain_pic')||''}">
-                <select id="newT" style="margin-top:10px;">
+                <input type="text" id="newN" placeholder="اسمك" value="${localStorage.getItem('zain_name')||''}">
+                <input type="text" id="newP" placeholder="رابط صورتك" value="${localStorage.getItem('zain_pic')||''}">
+                <select id="newT" style="margin-top:15px;">
                     <option value="default">ثيم: الديفولت</option>
                     <option value="gold">ثيم: ذهبي 👑</option>
                     <option value="purple">ثيم: بنفسجي 💜</option>
@@ -232,8 +246,8 @@
                     <option value="white">ثيم: أبيض ⚪</option>
                     <option value="black">ثيم: أسود ⚫</option>
                 </select>
-                <input type="password" id="newPass" placeholder="رمز الدخول الجديد" style="margin-top:10px;" value="${localStorage.getItem('my_pass')||''}">
-                <button onclick="saveAdm()" style="background:var(--accent); color:white; border:none; padding:10px; width:100%; border-radius:8px; margin-top:10px;">حفظ التعديلات</button>
+                <input type="password" id="newPass" placeholder="رمز دخول جديد" style="margin-top:15px;" value="${localStorage.getItem('my_pass')||''}">
+                <button onclick="saveAdm()" style="background:var(--accent); color:white; border:none; padding:12px; width:100%; border-radius:12px; margin-top:15px; font-weight:bold;">حفظ</button>
             `;
             document.getElementById('newT').value = localStorage.getItem('zain_theme') || 'default';
         }
