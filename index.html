@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZAIN NETWORK v14</title>
+    <title>ZAIN NETWORK v15</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style>
-        :root { --bg: #313338; --side: #2b2d31; --accent: #5865f2; --text: #dbdee1; }
+        :root { --bg: #313338; --side: #2b2d31; --accent: #5865f2; --text: #dbdee1; --danger: #ed4245; }
         * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
         .sidebar { width: 280px; background: var(--side); height: 100vh; display: flex; flex-direction: column; border-left: 1px solid #1e1f22; position: fixed; right: 0; top: 0; bottom: 0; transition: transform 0.3s ease-in-out; z-index: 1000; }
         .sidebar.hidden { transform: translateX(100%); }
         .main-content { flex: 1; display: flex; flex-direction: column; width: 100vw; height: 100vh; }
-        .toggle-btn { position: fixed; top: 10px; left: 10px; z-index: 2000; background: var(--accent); border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
-        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; padding-top: 60px; }
-        .msg { max-width: 85%; padding: 12px; border-radius: 12px; background: #383a40; align-self: flex-start; word-wrap: break-word; }
-        .msg.mine { align-self: flex-end; background: var(--accent); color: white; }
-        .input-bar { padding: 15px; background: var(--side); display: flex; gap: 8px; padding-bottom: 30px; }
-        input { padding: 12px; border-radius: 8px; border: none; background: #1e1f22; color: white; width: 100%; outline: none; font-size: 16px; }
-        .friend-card { background: #383a40; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; }
-        .friend-card.active { border-color: var(--accent); }
+        .toggle-btn { position: fixed; top: 10px; left: 10px; z-index: 2000; background: var(--accent); border: none; color: white; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .lock-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+        .box { background: var(--side); padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; text-align: center; }
+        #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; padding-top: 60px; }
+        .msg { max-width: 85%; padding: 12px; border-radius: 12px; background: #383a40; align-self: flex-start; }
+        .msg.mine { align-self: flex-end; background: var(--accent); }
+        .input-bar { padding: 15px; background: var(--side); display: flex; gap: 8px; padding-bottom: 25px; }
+        input { padding: 12px; border-radius: 8px; border: none; background: #1e1f22; color: white; outline: none; font-size: 16px; width: 100%; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--accent); }
+        .friend-card { background: #383a40; padding: 12px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; border: 2px solid transparent; display: flex; align-items: center; gap: 10px; }
+        .friend-card.active { border-color: var(--accent); }
     </style>
 </head>
 <body>
@@ -29,10 +31,11 @@
 <audio id="notifSound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3"></audio>
 
 <div id="lockScreen" class="lock-screen">
-    <div style="background:var(--side); padding:30px; border-radius:15px; text-align:center; width:80%; max-width:300px;">
+    <div id="lockBox" class="box">
         <h2>ZAIN NET</h2>
         <input type="password" id="passInput" placeholder="الرمز الشخصي">
         <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:12px; width:100%; border-radius:8px; margin-top:10px;">دخول</button>
+        <p onclick="openAdmin()" style="font-size:0.7rem; color:gray; cursor:pointer; margin-top:15px;">⚙️ إعدادات المالك</p>
     </div>
 </div>
 
@@ -40,6 +43,7 @@
 
 <div class="sidebar" id="sidebar">
     <div style="padding:20px; border-bottom:1px solid #1e1f22; text-align:center;">
+        <img id="myPfp" src="https://www.gravatar.com/avatar/0?d=mp" class="avatar" style="width:60px; height:60px; margin-bottom:10px;">
         <div id="myName" style="font-weight:bold;"></div>
         <div style="font-size:0.75rem; color:var(--accent);">ID: #<span id="myIDDisplay"></span></div>
     </div>
@@ -48,6 +52,7 @@
         <button onclick="addNewFriend()" style="background:var(--accent); color:white; border:none; width:100%; padding:8px; border-radius:5px; margin-top:5px;">إضافة</button>
     </div>
     <div id="friendsList" style="flex:1; overflow-y:auto; padding:10px;"></div>
+    <button onclick="location.reload()" style="background:var(--danger); border:none; color:white; padding:15px; width:100%;">خروج</button>
 </div>
 
 <div class="main-content">
@@ -59,6 +64,7 @@
 </div>
 
 <script>
+    const OWNER_KEY = "zain";
     let pubnub;
     let myID = localStorage.getItem('zain_id') || Math.floor(Math.random() * 1000) + 1;
     localStorage.setItem('zain_id', myID);
@@ -67,14 +73,19 @@
 
     function unlock() {
         const p = document.getElementById('passInput').value;
-        const s = localStorage.getItem('my_pass') || "123"; // افتراضي 123 لو أول مرة
-        if(p !== s && localStorage.getItem('my_pass')) return alert("خطأ!");
+        const s = localStorage.getItem('my_pass') || "123";
+        if(p !== s) return alert("خطأ!");
         localStorage.setItem('my_pass', p);
         document.getElementById('lockScreen').style.display = 'none';
         document.getElementById('toggleBtn').style.display = 'block';
         initPN();
+        loadUI();
         renderFriends();
-        document.getElementById('myName').innerText = "مستخدم #" + myID;
+    }
+
+    function loadUI() {
+        document.getElementById('myName').innerText = localStorage.getItem('zain_name') || "مستخدم #" + myID;
+        document.getElementById('myPfp').src = localStorage.getItem('zain_pic') || "https://www.gravatar.com/avatar/0?d=mp";
         document.getElementById('myIDDisplay').innerText = myID;
     }
 
@@ -84,24 +95,17 @@
             subscribeKey: "sub-c-bc8811a4-c349-4df5-8896-9a7cf29ad727",
             uuid: myID.toString()
         });
-
         pubnub.addListener({
             message: (m) => {
-                // إذا الرسالة للمحادثة المفتوحة حالياً، اعرضها فوراً
-                const channelName = "v8_chat_" + [myID, currentFid].sort().join("_");
-                if (m.channel === channelName) {
-                    renderMsg(m.message);
-                } else if (m.message.uid != myID) {
-                    document.getElementById('notifSound').play();
-                }
+                const activeChan = "v8_chat_" + [myID, currentFid].sort().join("_");
+                if (m.channel === activeChan) renderMsg(m.message);
+                else if (m.message.uid != myID) document.getElementById('notifSound').play();
             }
         });
-        
-        // الاشتراك في قنوات جميع الأصدقاء لضمان وصول التنبيهات
-        subscribeToAll();
+        updateSubs();
     }
 
-    function subscribeToAll() {
+    function updateSubs() {
         const channels = friends.map(id => "v8_chat_" + [myID, id].sort().join("_"));
         if(channels.length > 0) pubnub.subscribe({ channels: channels });
     }
@@ -111,7 +115,7 @@
         if(!id || id == myID || friends.includes(id)) return;
         friends.push(id);
         localStorage.setItem('my_friends', JSON.stringify(friends));
-        subscribeToAll();
+        updateSubs();
         renderFriends();
         document.getElementById('addID').value = "";
     }
@@ -122,7 +126,7 @@
         friends.forEach(id => {
             const div = document.createElement('div');
             div.className = `friend-card ${currentFid == id ? 'active' : ''}`;
-            div.innerHTML = `صديق #${id}`;
+            div.innerHTML = `<div class="avatar" style="width:30px; height:30px; font-size:10px; display:flex; align-items:center; justify-content:center;">ID</div> <span>صديق #${id}</span>`;
             div.onclick = () => openChat(id);
             list.appendChild(div);
         });
@@ -131,32 +135,25 @@
     function openChat(id) {
         currentFid = id;
         renderFriends();
-        document.getElementById('messages').innerHTML = "جاري تحميل الرسائل...";
+        document.getElementById('messages').innerHTML = "";
         if(window.innerWidth < 600) toggleSidebar();
-
-        const channelName = "v8_chat_" + [myID, id].sort().join("_");
-        
-        // جلب التاريخ الحقيقي في كل مرة تفتح فيها المحادثة
-        pubnub.history({ channel: channelName, count: 50 }, (status, response) => {
-            document.getElementById('messages').innerHTML = "";
-            if (response && response.messages) {
-                response.messages.forEach(m => renderMsg(m.entry));
-            }
+        const chan = "v8_chat_" + [myID, id].sort().join("_");
+        pubnub.history({ channel: chan, count: 50 }, (s, res) => {
+            if(res && res.messages) res.messages.forEach(m => renderMsg(m.entry));
         });
     }
 
     function send() {
-        if(!currentFid) return alert("اختر صديقاً!");
+        if(!currentFid) return alert("اختر صديقاً");
         const inp = document.getElementById('msgIn');
         if(!inp.value.trim()) return;
-
-        const channelName = "v8_chat_" + [myID, currentFid].sort().join("_");
         pubnub.publish({
-            channel: channelName,
+            channel: "v8_chat_" + [myID, currentFid].sort().join("_"),
             message: { 
                 text: inp.value, 
                 uid: myID, 
-                name: "أنا", 
+                name: localStorage.getItem('zain_name') || "أنا", 
+                pic: localStorage.getItem('zain_pic') || "",
                 time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) 
             }
         });
@@ -165,14 +162,35 @@
 
     function renderMsg(data) {
         const box = document.getElementById('messages');
+        const isMine = data.uid == myID;
         const div = document.createElement('div');
-        div.className = `msg ${data.uid == myID ? 'mine' : ''}`;
-        div.innerHTML = `<div style="font-size:0.7rem; opacity:0.7;">${data.time}</div>${data.text}`;
+        div.className = `msg ${isMine ? 'mine' : ''}`;
+        div.innerHTML = `<div style="font-size:0.7rem; font-weight:bold; margin-bottom:4px;">${data.name} <span style="opacity:0.5;">${data.time}</span></div><div>${data.text}</div>`;
         box.appendChild(div);
         box.scrollTop = box.scrollHeight;
     }
 
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
+
+    // إعدادات المالك (رجعتها لك!)
+    function openAdmin() {
+        document.getElementById('lockBox').innerHTML = `<h3>رمز المالك</h3><input type="password" id="admK"><button onclick="checkAdm()" style="background:var(--accent); color:white; border:none; padding:10px; width:100%; border-radius:8px; margin-top:10px;">دخول</button>`;
+    }
+    function checkAdm() {
+        if(document.getElementById('admK').value === OWNER_KEY) {
+            document.getElementById('lockBox').innerHTML = `
+                <input type="text" id="newN" placeholder="الاسم" value="${localStorage.getItem('zain_name')||''}">
+                <input type="text" id="newP" placeholder="رابط الصورة" value="${localStorage.getItem('zain_pic')||''}">
+                <input type="password" id="newPass" placeholder="رمز الدخول الجديد" value="${localStorage.getItem('my_pass')||''}">
+                <button onclick="saveAdm()" style="background:var(--accent); color:white; border:none; padding:10px; width:100%; border-radius:8px; margin-top:10px;">حفظ</button>`;
+        }
+    }
+    function saveAdm() {
+        localStorage.setItem('zain_name', document.getElementById('newN').value);
+        localStorage.setItem('zain_pic', document.getElementById('newP').value);
+        localStorage.setItem('my_pass', document.getElementById('newPass').value);
+        location.reload();
+    }
 </script>
 </body>
 </html>
