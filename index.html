@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZAIN NETWORK v42</title>
+    <title>ZAIN NETWORK v43</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style>
@@ -15,7 +15,6 @@
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; transition: background 0.3s; }
         
-        /* تحسين المدخلات - وداعاً للون الأبيض الممل */
         input, select { 
             background: var(--input-bg) !important; 
             border: 1px solid rgba(255,255,255,0.1) !important;
@@ -27,7 +26,6 @@
             font-size: 15px;
             transition: 0.3s;
         }
-        input:focus { border-color: var(--accent) !important; box-shadow: 0 0 10px rgba(88,101,242,0.2); }
 
         #chatWall { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.2; z-index: -1; pointer-events: none; }
         
@@ -35,8 +33,6 @@
         .sidebar.hidden { transform: translateX(100%); }
         
         .main-content { flex: 1; display: flex; flex-direction: column; width: 100vw; height: 100vh; position: relative; }
-        
-        /* منطقة الرسائل */
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; padding-top: 85px; }
 
         .msg { 
@@ -46,21 +42,12 @@
         }
         .msg.mine { align-self: flex-end; background: var(--accent); color: white; flex-direction: row-reverse; }
 
-        /* حل مشكلة الصور الكبيرة */
-        .msg img, .msg video { 
-            max-width: 100%; 
-            max-height: 350px; 
-            border-radius: 12px; 
-            margin-top: 8px; 
-            object-fit: contain; 
-            display: block;
-        }
+        .msg img, .msg video { max-width: 100%; max-height: 350px; border-radius: 12px; margin-top: 8px; object-fit: contain; display: block; }
 
         .friend-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 15px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; }
         .friend-card.active { border-color: var(--accent); background: rgba(88, 101, 242, 0.15); }
         
-        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; margin-bottom: 12px; color: white; transition: 0.3s; }
-        .btn-action:active { transform: scale(0.98); }
+        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 15px; font-weight: 800; cursor: pointer; margin-bottom: 12px; color: white; }
 
         .input-bar { 
             padding: 20px; background: var(--side); display: flex; gap: 12px; 
@@ -69,23 +56,24 @@
         }
 
         .avatar { width: 48px; height: 48px; border-radius: 16px; object-fit: cover; border: 2px solid var(--accent); }
-        .toggle-btn { position: fixed; top: 20px; left: 20px; z-index: 2000; background: var(--accent); border: none; color: white; width: 50px; height: 50px; border-radius: 15px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .toggle-btn { position: fixed; top: 20px; left: 20px; z-index: 2000; background: var(--accent); border: none; color: white; width: 50px; height: 50px; border-radius: 15px; cursor: pointer; }
 
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 6000; align-items: center; justify-content: center; }
         .modal-content { background: var(--side); padding: 30px; border-radius: 25px; width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
 <div id="lockScreen" style="position:fixed; inset:0; background:var(--bg); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(10px);">
-    <div style="text-align:center; background:var(--side); padding:40px; border-radius:30px; width:85%; max-width:380px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+    <div style="text-align:center; background:var(--side); padding:40px; border-radius:30px; width:85%; max-width:380px;">
         <h1 style="color:var(--accent); margin:0; font-size:2rem; font-weight:900;">ZAIN NET</h1>
-        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V42 | Secure Workspace</p>
-        <input type="password" id="passInput" placeholder="أدخل رمز المرور">
-        <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:16px; width:100%; border-radius:15px; margin-top:20px; font-weight:bold; cursor:pointer;">دخول آمن</button>
+        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V43 | Secure Workspace</p>
+        <input type="password" id="passInput" placeholder="أدخل رمز المرور" onkeypress="if(event.key==='Enter') unlock()">
+        <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:16px; width:100%; border-radius:15px; margin-top:20px; font-weight:bold;">دخول آمن</button>
     </div>
 </div>
 
-<div id="settingsModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:6000; align-items:center; justify-content:center;">
+<div id="settingsModal" class="modal">
     <div class="modal-content">
         <h2 style="color:var(--accent); margin-bottom:20px;">⚙️ الإعدادات</h2>
         <div style="display:flex; flex-direction:column; gap:15px;">
@@ -113,8 +101,10 @@
 <div class="sidebar" id="sidebar">
     <div style="padding:30px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.05);">
         <img id="myPfp" src="" class="avatar" style="width:70px; height:70px; margin-bottom:10px;">
-        <div id="myName" style="font-weight:800; font-size:1.2rem;"></div>
-        <button onclick="openSettings()" style="background:rgba(88,101,242,0.1); border:1px solid var(--accent); color:var(--accent); font-size:0.75rem; padding:6px 15px; border-radius:20px; margin-top:10px; cursor:pointer;">تعديل البروفايل</button>
+        <div id="myName" style="font-weight:800; font-size:1.2rem; line-height:1;"></div>
+        <div id="myIDDisplay" style="font-size:0.75rem; opacity:0.5; margin-top:4px; font-weight:bold; letter-spacing:1px;"></div>
+        
+        <button onclick="openSettings()" style="background:rgba(88,101,242,0.1); border:1px solid var(--accent); color:var(--accent); font-size:0.75rem; padding:6px 15px; border-radius:20px; margin-top:12px; cursor:pointer;">تعديل البروفايل</button>
     </div>
 
     <div style="flex:1; overflow-y:auto; padding:20px;">
@@ -142,12 +132,11 @@
     <div id="messages"></div>
     <div class="input-bar">
         <input type="text" id="msgIn" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') send()">
-        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:0 30px; border-radius:15px; font-weight:bold; cursor:pointer;">إرسال</button>
+        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:0 30px; border-radius:15px; font-weight:bold;">إرسال</button>
     </div>
 </div>
 
 <script>
-    // الدوال الأساسية (PubNub, Settings, UI)
     function applySettings() {
         const theme = localStorage.getItem('zain_theme') || 'default';
         const themes = {
@@ -162,7 +151,6 @@
         r.style.setProperty('--bg', t.bg); r.style.setProperty('--side', t.side);
         r.style.setProperty('--accent', t.accent); r.style.setProperty('--text', t.text);
         r.style.setProperty('--msg-bg', t.msg); r.style.setProperty('--input-bg', t.input);
-        
         const wall = localStorage.getItem('zain_wall');
         if(wall) document.getElementById('chatWall').style.backgroundImage = `url(${wall})`;
     }
@@ -190,17 +178,11 @@
         const box = document.getElementById('messages'), isMine = data.uid == myID, div = document.createElement('div');
         div.className = `msg ${isMine ? 'mine' : ''}`;
         let content = data.text || "";
-        
-        // ذكاء الروابط (يوتيوب، صور، فيديو)
         if(content.includes('youtube.com/') || content.includes('youtu.be/')) {
             const id = content.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|&v=|shorts\/))([^#&?]*)/);
-            if(id) content = `<iframe class="yt-frame" src="https://www.youtube.com/embed/${id[1]}" allowfullscreen></iframe>`;
-        } else if(content.match(/\.(jpg|jpeg|png|gif|webp)/i)) {
-            content = `<img src="${content}" onclick="window.open(this.src)">`;
-        } else if(content.match(/\.(mp4|mov|webm)/i)) {
-            content = `<video controls src="${content}"></video>`;
-        }
-        
+            if(id) content = `<iframe class="yt-frame" style="width:100%; aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${id[1]}" allowfullscreen></iframe>`;
+        } else if(content.match(/\.(jpg|jpeg|png|gif|webp)/i)) content = `<img src="${content}" onclick="window.open(this.src)">`;
+        else if(content.match(/\.(mp4|mov|webm)/i)) content = `<video controls src="${content}"></video>`;
         const userPic = data.pic || "https://www.gravatar.com/avatar/" + data.uid + "?d=identicon";
         div.innerHTML = `<img src="${userPic}" class="avatar" style="width:35px; height:35px;"><div style="flex:1;"><div style="font-size:0.65rem; font-weight:800; opacity:0.8; margin-bottom:4px;">${data.name}</div><div>${content}</div></div>`;
         box.appendChild(div); box.scrollTop = box.scrollHeight;
@@ -281,6 +263,7 @@
     function loadUI() {
         document.getElementById('myName').innerText = localStorage.getItem('zain_name') || "مستخدم #" + myID;
         document.getElementById('myPfp').src = localStorage.getItem('zain_pic') || "https://www.gravatar.com/avatar/" + myID + "?d=identicon";
+        document.getElementById('myIDDisplay').innerText = "ID: " + myID;
     }
 </script>
 </body>
