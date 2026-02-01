@@ -3,54 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZAIN NETWORK v51</title>
-    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlpBSU4gTkVUV09SSyIsCiAgInNob3J0X25hbWUiOiAiWkFJTml0IiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMjAwOTNlIiwKICAidGhlbWVfY29sb3IiOiAiIzYxMzE5ZCJ9">
+    <title>ZAIN NETWORK v52</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.7.2.2.min.js"></script>
     <style>
-        :root { 
-            --bg: #20093e; --card: #301654; --accent: #9b59b6; --text: #fff;
-            --gold: #d4af37; --green: #52b788; --red: #e63946;
-        }
-        /* منع الزوم وتحسين اللمس */
-        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; font-size: 16px; }
-
+        :root { --bg: #20093e; --card: #301654; --accent: #9b59b6; --text: #fff; --green: #52b788; }
+        * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+        
         /* الثيمات */
         body.theme-black { --bg: #000; --card: #1a1a1a; --accent: #333; }
         body.theme-gold { --bg: #1a1a1a; --card: #2c2c2c; --accent: #d4af37; }
-        body.theme-white { --bg: #f0f0f0; --card: #fff; --accent: #9b59b6; --text: #333; }
-        body.theme-red { --bg: #4a0000; --card: #600000; --accent: #ff4d4d; }
 
-        /* منع تكبير الشاشة عند الكتابة في الأيفون */
-        input, select, textarea { font-size: 16px !important; background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: inherit !important; padding: 15px; border-radius: 20px; outline: none; width: 100%; }
+        input { font-size: 16px !important; background: rgba(0,0,0,0.3) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: inherit !important; padding: 15px; border-radius: 20px; outline: none; width: 100%; }
         
         .sidebar { width: 320px; background: var(--bg); height: 100vh; position: fixed; right: 0; transition: 0.4s; z-index: 1000; padding: 20px; border-left: 1px solid rgba(255,255,255,0.05); overflow-y: auto; }
         .sidebar.hidden { transform: translateX(100%); }
 
-        /* شاشة الإعدادات المدمجة كما في الصورة */
-        .settings-panel { display: none; background: var(--card); border-radius: 35px; padding: 30px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .settings-panel.active { display: block; }
-
-        /* تصميم الرسالة المطور */
+        /* تصميم الرسالة - إصلاح كسر السطور */
         .msg-container { display: flex; gap: 10px; margin-bottom: 20px; align-self: flex-start; max-width: 85%; }
         .msg-container.mine { align-self: flex-end; flex-direction: row-reverse; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; border: 2px solid var(--accent); }
-        .msg-content { background: var(--card); padding: 12px 16px; border-radius: 20px; position: relative; }
-        .mine .msg-content { background: var(--accent); color: white; }
-        .msg-info { font-size: 0.7rem; font-weight: 800; margin-bottom: 4px; display: flex; justify-content: space-between; gap: 10px; opacity: 0.7; }
-
-        /* قائمة الأصدقاء */
-        .friend-card { background: var(--card); padding: 15px; border-radius: 22px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        .action-btn { background: rgba(0,0,0,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; }
-
-        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 22px; width: 100%; font-weight: 800; margin-bottom: 15px; cursor: pointer; }
-        .btn-green { background: var(--green); color: white; border: none; padding: 18px; border-radius: 22px; width: 100%; font-weight: 800; cursor: pointer; margin-bottom: 10px; }
+        .msg-avatar { width: 42px; height: 42px; border-radius: 12px; border: 2px solid var(--accent); object-fit: cover; }
         
-        /* منطقة الروابط المستخرجة */
-        .link-result { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 15px; margin-top: 10px; display: none; }
+        .msg-content { 
+            background: var(--card); padding: 12px 16px; border-radius: 20px; 
+            white-space: pre-wrap; /* هذا يكسر السطور */
+            word-break: break-word; /* يكسر الكلمات الطويلة */
+            line-height: 1.5;
+        }
+        .mine .msg-content { background: var(--accent); }
+
+        /* ميديا الرسايل */
+        .msg-media { margin-top: 10px; display: block; }
+        .msg-media img, .msg-media video { max-width: 100%; border-radius: 12px; display: block; border: 1px solid rgba(255,255,255,0.1); }
         
+        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 22px; width: 100%; font-weight: 800; cursor: pointer; margin-bottom: 15px; }
+        .menu-btn { position: fixed; top: 25px; left: 25px; z-index: 2000; background: var(--accent); color: white; width: 45px; height: 45px; border-radius: 15px; border: none; }
+
         #messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; padding-top: 85px; }
         .input-bar { padding: 20px; background: var(--bg); display: flex; gap: 10px; padding-bottom: env(safe-area-inset-bottom, 25px); }
     </style>
@@ -60,60 +50,28 @@
 <div id="lockScreen" style="position:fixed; inset:0; background:var(--bg); z-index:5000; display:flex; align-items:center; justify-content:center; text-align:center;">
     <div style="background:var(--card); padding:40px; border-radius:35px; width:90%; max-width:380px;">
         <h1 style="color:var(--accent); font-weight:900;">ZAIN NET</h1>
-        <input type="password" id="passInput" placeholder="أدخل رمز الدخول">
+        <input type="password" id="passInput" placeholder="أدخل الرمز">
         <button onclick="unlock()" class="btn-main" style="margin-top:20px;">دخول</button>
     </div>
 </div>
 
-<button id="toggleBtn" class="menu-btn" style="position:fixed; top:25px; left:25px; z-index:2000; background:var(--accent); color:white; width:45px; height:45px; border-radius:15px; border:none; display:none;" onclick="toggleSidebar()">☰</button>
+<button id="toggleBtn" class="menu-btn" style="display:none;" onclick="toggleSidebar()">☰</button>
 
 <div class="sidebar" id="sidebar">
-    <div id="mainSidebarView">
-        <div style="text-align:center; margin-bottom:25px;">
-            <img id="myPfp" src="" style="width:80px; height:80px; border-radius:25px; border:3px solid var(--accent);">
-            <div id="myName" style="font-weight:800; font-size:1.4rem;"></div>
-            <div id="myIDDisplay" style="font-size:0.8rem; opacity:0.5;"></div>
-            <button onclick="showSettings()" class="btn-main" style="padding:8px; margin-top:10px; font-size:0.9rem;">تعديل البروفايل</button>
-        </div>
-
-        <button onclick="addNewFriend()" class="btn-main">➕ إضافة صديق</button>
-        <div id="friendsList"></div>
-
-        <button class="btn-green" onclick="document.getElementById('fileIn').click()">📥 استخراج رابط ملف</button>
-        <input type="file" id="fileIn" hidden onchange="handleFileUpload(this)">
-        
-        <div id="linkOutput" class="link-result">
-            <div style="font-size:0.7rem; opacity:0.6; margin-bottom:5px;">الرابط المستخرج:</div>
-            <input type="text" id="finalLink" readonly style="padding:8px; font-size:0.7rem !important;">
-            <button onclick="copyLink()" class="btn-main" style="padding:10px; margin-top:8px; font-size:0.8rem; background:var(--green);">نسخ الرابط</button>
-        </div>
-
-        <button onclick="location.reload()" class="btn-main" style="background:var(--red); margin-top:20px;">🚪 تسجيل الخروج</button>
+    <div style="text-align:center; margin-bottom:25px;">
+        <img id="myPfp" src="" style="width:80px; height:80px; border-radius:25px; border:3px solid var(--accent);">
+        <div id="myName" style="font-weight:800; font-size:1.4rem;"></div>
+        <button onclick="editProfile()" class="btn-main" style="padding:8px; margin-top:10px; font-size:0.8rem;">تعديل البروفايل</button>
     </div>
-
-    <div id="settingsPanel" class="settings-panel">
-        <h2 style="color:var(--accent); font-size:1.5rem; text-align:center;">⚙️ الإعدادات</h2>
-        <div style="display:flex; flex-direction:column; gap:12px;">
-            <input type="text" id="editN" placeholder="الاسم">
-            <input type="text" id="editP" placeholder="رابط الصورة">
-            <input type="password" id="editPass" placeholder="الرمز الجديد">
-            <select id="editT" onchange="changeTheme(this.value)">
-                <option value="default">🟣 بنفسجي</option>
-                <option value="black">⚫ أسود ملكي</option>
-                <option value="gold">🟡 ذهبي</option>
-                <option value="white">⚪ أبيض</option>
-                <option value="red">🔴 أحمر</option>
-            </select>
-            <button onclick="saveProfile()" class="btn-main" style="margin-bottom:5px;">حفظ</button>
-            <button onclick="hideSettings()" style="background:rgba(255,255,255,0.05); color:inherit; border:none; padding:15px; border-radius:20px;">إلغاء</button>
-        </div>
-    </div>
+    <button onclick="addNewFriend()" class="btn-main">➕ إضافة صديق</button>
+    <div id="friendsList"></div>
+    <button onclick="location.reload()" class="btn-main" style="background:#e63946; margin-top:20px;">🚪 تسجيل الخروج</button>
 </div>
 
 <div style="flex:1; display:flex; flex-direction:column; position:relative;">
     <div id="messages"></div>
     <div class="input-bar">
-        <input type="text" id="msgIn" placeholder="اكتب رسالتك..." onkeypress="if(event.key==='Enter') send()">
+        <input type="text" id="msgIn" placeholder="اكتب..." onkeypress="if(event.key==='Enter') send()">
         <button onclick="send()" style="background:var(--accent); border:none; color:white; padding:0 25px; border-radius:18px; font-weight:bold;">إرسال</button>
     </div>
 </div>
@@ -122,12 +80,6 @@
     let pubnub, myID = localStorage.getItem('zain_id') || Math.floor(Math.random()*899)+100;
     localStorage.setItem('zain_id', myID);
     let friends = JSON.parse(localStorage.getItem('my_friends_v2') || "[]"), currentFid = null;
-
-    function changeTheme(theme) {
-        document.getElementById('bodyTag').className = theme === 'default' ? '' : 'theme-' + theme;
-        localStorage.setItem('zain_theme', theme);
-    }
-    changeTheme(localStorage.getItem('zain_theme') || 'default');
 
     function unlock() {
         if(document.getElementById('passInput').value !== (localStorage.getItem('my_pass') || "123")) return alert("خطأ");
@@ -145,15 +97,25 @@
         friends.forEach(f => pubnub.subscribe({ channels: ["v8_chat_" + [myID, f.id].sort().join("_")] }));
     }
 
-    function parseMedia(text) {
-        const imgReg = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp))/i;
-        const vidReg = /(https?:\/\/.*\.(?:mp4|webm|mov))/i;
-        const ytReg = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-        let html = `<div>${text}</div><div style="margin-top:8px;">`;
-        if(imgReg.test(text)) html += `<img src="${text.match(imgReg)[0]}" style="max-width:100%; border-radius:15px;">`;
-        if(vidReg.test(text)) html += `<video controls src="${text.match(vidReg)[0]}" style="max-width:100%; border-radius:15px;"></video>`;
-        if(ytReg.test(text)) html += `<iframe width="100%" height="200" src="https://www.youtube.com/embed/${text.match(ytReg)[1]}" frameborder="0" allowfullscreen style="border-radius:15px;"></iframe>`;
-        return html + `</div>`;
+    // المحلل المطور للروابط
+    function getMediaHTML(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urls = text.match(urlRegex);
+        let mediaContent = "";
+
+        if (urls) {
+            urls.forEach(url => {
+                if (url.match(/\.(jpeg|jpg|gif|png|webp)/i)) {
+                    mediaContent += `<div class="msg-media"><img src="${url}"></div>`;
+                } else if (url.match(/\.(mp4|webm|mov|quicktime)/i)) {
+                    mediaContent += `<div class="msg-media"><video controls src="${url}"></video></div>`;
+                } else if (url.includes("youtube.com/watch?v=") || url.includes("youtu.be/")) {
+                    let id = url.split('v=')[1] || url.split('.be/')[1];
+                    if(id) mediaContent += `<div class="msg-media"><iframe width="100%" height="200" src="https://www.youtube.com/embed/${id.split('&')[0]}" frameborder="0" allowfullscreen></iframe></div>`;
+                }
+            });
+        }
+        return mediaContent;
     }
 
     function renderMsg(data) {
@@ -163,55 +125,12 @@
         div.className = `msg-container ${isMine ? 'mine' : ''}`;
         div.innerHTML = `
             <img src="${data.pic || 'https://www.gravatar.com/avatar/'+data.uid+'?d=identicon'}" class="msg-avatar">
-            <div class="msg-content">
-                <div class="msg-info"><span>${data.name}</span><span>${time}</span></div>
-                ${parseMedia(data.text)}
+            <div style="flex:1; display:flex; flex-direction:column;">
+                <div class="msg-content">${data.text}</div>
+                ${getMediaHTML(data.text)}
+                <div style="font-size:0.6rem; opacity:0.5; margin-top:4px; text-align:${isMine?'left':'right'}">${time} - ${data.name}</div>
             </div>`;
         box.appendChild(div); box.scrollTop = box.scrollHeight;
-    }
-
-    function renderFriends() {
-        const list = document.getElementById('friendsList'); list.innerHTML = "";
-        friends.forEach((f, i) => {
-            const div = document.createElement('div'); div.className = `friend-card ${currentFid == f.id ? 'active' : ''}`;
-            div.innerHTML = `
-                <img src="https://www.gravatar.com/avatar/${f.id}?d=identicon" style="width:40px; height:40px; border-radius:50%;">
-                <div style="flex:1;" onclick="openChat('${f.id}')"><b>${f.name}</b></div>
-                <button class="action-btn" onclick="editFriend(${i})">✏️</button>
-                <button class="action-btn" onclick="deleteFriend(${i})" style="color:var(--red)">✕</button>`;
-            list.appendChild(div);
-        });
-    }
-
-    function handleFileUpload(input) {
-        if (!input.files[0]) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            document.getElementById('linkOutput').style.display = 'block';
-            document.getElementById('finalLink').value = e.target.result.substring(0, 100) + "...(Base64)"; 
-            // ملاحظة: للاستخدام الحقيقي يفضل رفعها لسيرفر، هنا مجرد محاكاة للرابط
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    function copyLink() {
-        const copyText = document.getElementById("finalLink");
-        copyText.select();
-        document.execCommand("copy");
-        alert("تم النسخ!");
-    }
-
-    function showSettings() { document.getElementById('mainSidebarView').style.display = 'none'; document.getElementById('settingsPanel').classList.add('active'); }
-    function hideSettings() { document.getElementById('mainSidebarView').style.display = 'block'; document.getElementById('settingsPanel').classList.remove('active'); }
-
-    function saveProfile() {
-        const n = document.getElementById('editN').value;
-        const p = document.getElementById('editP').value;
-        const pass = document.getElementById('editPass').value;
-        if(n) localStorage.setItem('zain_name', n);
-        if(p) localStorage.setItem('zain_pic', p);
-        if(pass) localStorage.setItem('my_pass', pass);
-        location.reload();
     }
 
     function openChat(id) {
@@ -231,20 +150,34 @@
         inp.value = "";
     }
 
+    function renderFriends() {
+        const list = document.getElementById('friendsList'); list.innerHTML = "";
+        friends.forEach((f, i) => {
+            const div = document.createElement('div'); div.style = `background:var(--card); padding:15px; border-radius:20px; margin-bottom:10px; display:flex; align-items:center; gap:10px; cursor:pointer; border:1px solid ${currentFid==f.id? 'var(--accent)':'transparent'}`;
+            div.innerHTML = `<img src="https://www.gravatar.com/avatar/${f.id}?d=identicon" style="width:35px; height:35px; border-radius:50%;"><b style="flex:1;" onclick="openChat('${f.id}')">${f.name}</b><span onclick="friends.splice(${i},1); localStorage.setItem('my_friends_v2', JSON.stringify(friends)); renderFriends()">✕</span>`;
+            list.appendChild(div);
+        });
+    }
+
     function addNewFriend() {
-        const id = prompt("ID الصديق:"); const name = prompt("الاسم:");
+        const id = prompt("ID:"); const name = prompt("Name:");
         if(id && name) { friends.push({id, name}); localStorage.setItem('my_friends_v2', JSON.stringify(friends)); renderFriends(); }
     }
 
-    function editFriend(i) { const n = prompt("تعديل الاسم:", friends[i].name); if(n) { friends[i].name = n; renderFriends(); }}
-    function deleteFriend(i) { if(confirm("حذف؟")) { friends.splice(i,1); renderFriends(); }}
+    function editProfile() {
+        const n = prompt("الاسم:", localStorage.getItem('zain_name'));
+        const p = prompt("الصورة:");
+        const pass = prompt("الرمز:", localStorage.getItem('my_pass') || "123");
+        if(n) localStorage.setItem('zain_name', n);
+        if(p) localStorage.setItem('zain_pic', p);
+        if(pass) localStorage.setItem('my_pass', pass);
+        location.reload();
+    }
+
     function toggleSidebar() { document.getElementById('sidebar').classList.toggle('hidden'); }
     function loadUI() {
         document.getElementById('myName').innerText = localStorage.getItem('zain_name') || "ZAIN USER";
-        document.getElementById('myIDDisplay').innerText = "ID: " + myID;
         document.getElementById('myPfp').src = localStorage.getItem('zain_pic') || "https://www.gravatar.com/avatar/" + myID + "?d=identicon";
-        document.getElementById('editN').value = localStorage.getItem('zain_name') || "";
-        document.getElementById('editP').value = localStorage.getItem('zain_pic') || "";
     }
 </script>
 </body>
