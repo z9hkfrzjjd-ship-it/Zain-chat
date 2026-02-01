@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZAIN NETWORK v56</title>
+    <title>ZAIN NETWORK v57</title>
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlpBSU4gTkVUV09SSyIsCiAgInNob3J0X25hbWUiOiAiWkFJTml0IiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiaWNvbnMiOiBbIHsgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi81OTY4LzU5Njg4NzUucG5nIiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9wbmciIH0gXQp9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
 <div id="lockScreen" style="position:fixed; inset:0; background:var(--bg); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(10px);">
     <div style="text-align:center; background:var(--side); padding:40px; border-radius:30px; width:85%; max-width:380px;">
         <h1 style="color:var(--accent); margin:0; font-size:2rem; font-weight:900;">ZAIN NET</h1>
-        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V56 | Secure Workspace</p>
+        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V57 | Secure Workspace</p>
         <input type="password" id="passInput" placeholder="أدخل رمز المرور" onkeypress="if(event.key==='Enter') unlock()">
         <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:16px; width:100%; border-radius:15px; margin-top:20px; font-weight:bold;">دخول آمن</button>
     </div>
@@ -110,20 +110,23 @@
 </div>
 
 <script>
+    // --- ربط ملف sw.js (الجسر) ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('SW Registered ✅');
+            }).catch(err => console.log('SW Fail ❌', err));
+        });
+    }
+
     let unreadCount = 0;
 
-    // وظيفة الزر الجديد لتفعيل الإشعارات
     async function activateNotifs() {
-        if (!("Notification" in window)) {
-            alert("هذا المتصفح لا يدعم الإشعارات");
-            return;
-        }
+        if (!("Notification" in window)) return alert("المتصفح لا يدعم الإشعارات");
         const permission = await Notification.requestPermission();
         if (permission === "granted") {
-            alert("تم تفعيل الإشعارات بنجاح ✅");
+            alert("تم التفعيل ✅");
             new Notification("ZAIN NET", { body: "الإشعارات تعمل الآن!" });
-        } else {
-            alert("يجب السماح بالإشعارات من إعدادات المتصفح/الأيفون ❌");
         }
     }
 
