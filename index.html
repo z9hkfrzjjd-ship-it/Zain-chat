@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ZAIN NETWORK v55</title>
+    <title>ZAIN NETWORK v56</title>
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlpBSU4gTkVUV09SSyIsCiAgInNob3J0X25hbWUiOiAiWkFJTml0IiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiaWNvbnMiOiBbIHsgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi81OTY4LzU5Njg4NzUucG5nIiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9wbmciIH0gXQp9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
@@ -40,7 +40,7 @@
 <div id="lockScreen" style="position:fixed; inset:0; background:var(--bg); z-index:5000; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(10px);">
     <div style="text-align:center; background:var(--side); padding:40px; border-radius:30px; width:85%; max-width:380px;">
         <h1 style="color:var(--accent); margin:0; font-size:2rem; font-weight:900;">ZAIN NET</h1>
-        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V55 | Secure Workspace</p>
+        <p style="opacity:0.5; font-size:0.9rem; margin-bottom:30px;">V56 | Secure Workspace</p>
         <input type="password" id="passInput" placeholder="أدخل رمز المرور" onkeypress="if(event.key==='Enter') unlock()">
         <button onclick="unlock()" style="background:var(--accent); color:white; border:none; padding:16px; width:100%; border-radius:15px; margin-top:20px; font-weight:bold;">دخول آمن</button>
     </div>
@@ -83,6 +83,8 @@
     </div>
     <div style="flex:1; overflow-y:auto; padding:20px;">
         <button onclick="addNewFriend()" class="btn-action" style="background:var(--accent);">➕ إضافة صديق</button>
+        <button onclick="activateNotifs()" class="btn-action" style="background:#ff9f1c;">🔔 تفعيل الإشعارات</button>
+        
         <div id="friendsList"></div>
         <div style="margin-top:25px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.05);">
             <button onclick="document.getElementById('fastUpload').click()" class="btn-action" style="background:#43b581;">📤 استخراج رابط ملف</button>
@@ -110,18 +112,25 @@
 <script>
     let unreadCount = 0;
 
-    // --- إضافة ميزة الإشعارات الجديدة ---
-    async function requestNotifPermission() {
-        if ("Notification" in window) {
-            const permission = await Notification.requestPermission();
-            if (permission === "granted") console.log("Notification permission granted.");
+    // وظيفة الزر الجديد لتفعيل الإشعارات
+    async function activateNotifs() {
+        if (!("Notification" in window)) {
+            alert("هذا المتصفح لا يدعم الإشعارات");
+            return;
+        }
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+            alert("تم تفعيل الإشعارات بنجاح ✅");
+            new Notification("ZAIN NET", { body: "الإشعارات تعمل الآن!" });
+        } else {
+            alert("يجب السماح بالإشعارات من إعدادات المتصفح/الأيفون ❌");
         }
     }
 
     function showBrowserNotification(title, body, icon) {
         if ("Notification" in window && Notification.permission === "granted") {
             new Notification(title, { body: body, icon: icon || 'https://cdn-icons-png.flaticon.com/512/5968/5968875.png' });
-            if (navigator.vibrate) navigator.vibrate(200); // اهتزاز بسيط
+            if (navigator.vibrate) navigator.vibrate(200);
         }
     }
 
@@ -137,7 +146,6 @@
             if ('clearAppBadge' in navigator) navigator.clearAppBadge().catch(() => {});
         }
     }
-    // ----------------------------------
 
     function applySettings() {
         const theme = localStorage.getItem('zain_theme') || 'default';
@@ -165,7 +173,6 @@
         if(document.getElementById('passInput').value !== (localStorage.getItem('my_pass') || "123")) return alert("❌ الرمز خطأ");
         document.getElementById('lockScreen').style.display = 'none';
         document.getElementById('toggleBtn').style.display = 'block';
-        requestNotifPermission(); // اطلب الإذن فور الدخول
         initPN(); loadUI(); renderFriends();
     }
 
@@ -175,8 +182,8 @@
             if(m.channel.includes(currentFid)) {
                 renderMsg(m.message);
             } else if(m.message.uid != myID) {
-                updateBadge(unreadCount + 1); // تحديث العلامة الحمراء
-                showBrowserNotification(m.message.name, m.message.text, m.message.pic); // إشعار نظام
+                updateBadge(unreadCount + 1);
+                showBrowserNotification(m.message.name, m.message.text, m.message.pic);
             }
         }});
         friends.forEach(f => pubnub.subscribe({ channels: ["v8_chat_" + [myID, f.id].sort().join("_")] }));
@@ -204,7 +211,7 @@
 
     function openChat(id) {
         currentFid = id; renderFriends(); document.getElementById('messages').innerHTML = "";
-        updateBadge(0); // تصفير عند الدخول للمحادثة
+        updateBadge(0);
         if(window.innerWidth < 600) toggleSidebar();
         const chan = "v8_chat_" + [myID, id].sort().join("_");
         pubnub.fetchMessages({ channels: [chan], count: 50 }, (s, res) => { if (res && res.channels[chan]) res.channels[chan].forEach(m => renderMsg(m.message)); });
