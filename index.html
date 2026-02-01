@@ -15,7 +15,7 @@
         * { box-sizing: border-box; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; transition: background 0.3s; }
         
-        input, select { 
+        input, select, textarea { 
             background: var(--input-bg) !important; 
             border: 1px solid rgba(255,255,255,0.1) !important;
             color: var(--text) !important;
@@ -25,6 +25,7 @@
             width: 100%; 
             font-size: 15px;
             transition: 0.3s;
+            resize: none;
         }
 
         #chatWall { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0.2; z-index: -1; pointer-events: none; }
@@ -39,6 +40,8 @@
             max-width: 80%; padding: 14px 18px; border-radius: 20px; background: var(--msg-bg); 
             align-self: flex-start; display: flex; gap: 12px; line-height: 1.6;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.03);
+            white-space: pre-wrap; /* أهم سطر لكسر الأسطر في العرض */
+            word-break: break-word;
         }
         .msg.mine { align-self: flex-end; background: var(--accent); color: white; flex-direction: row-reverse; }
 
@@ -53,6 +56,7 @@
             padding: 20px; background: var(--side); display: flex; gap: 12px; 
             border-top: 1px solid rgba(0,0,0,0.1);
             padding-bottom: env(safe-area-inset-bottom, 25px); 
+            align-items: flex-end;
         }
 
         .avatar { width: 48px; height: 48px; border-radius: 16px; object-fit: cover; border: 2px solid var(--accent); }
@@ -131,12 +135,23 @@
     <div id="chatWall"></div>
     <div id="messages"></div>
     <div class="input-bar">
-        <input type="text" id="msgIn" placeholder="اكتب رسالة..." onkeypress="if(event.key==='Enter') send()">
-        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:0 30px; border-radius:15px; font-weight:bold;">إرسال</button>
+        <textarea id="msgIn" rows="1" placeholder="اكتب رسالة..." onkeydown="handleKey(event)"></textarea>
+        <button onclick="send()" style="background:var(--accent); color:white; border:none; padding:15px 30px; border-radius:15px; font-weight:bold; height:50px;">إرسال</button>
     </div>
 </div>
 
 <script>
+    // وظيفة معالجة الأزرار للكتابة
+    function handleKey(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            send();
+        }
+        // تمدد تلقائي لصندوق النص
+        e.target.style.height = 'inherit';
+        e.target.style.height = `${e.target.scrollHeight}px`;
+    }
+
     function applySettings() {
         const theme = localStorage.getItem('zain_theme') || 'default';
         const themes = {
@@ -178,11 +193,14 @@
         const box = document.getElementById('messages'), isMine = data.uid == myID, div = document.createElement('div');
         div.className = `msg ${isMine ? 'mine' : ''}`;
         let content = data.text || "";
+        
+        // التحقق من الروابط قبل عرض النص لتجنب كسر كود الـ HTML
         if(content.includes('youtube.com/') || content.includes('youtu.be/')) {
             const id = content.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|&v=|shorts\/))([^#&?]*)/);
-            if(id) content = `<iframe class="yt-frame" style="width:100%; aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${id[1]}" allowfullscreen></iframe>`;
-        } else if(content.match(/\.(jpg|jpeg|png|gif|webp)/i)) content = `<img src="${content}" onclick="window.open(this.src)">`;
-        else if(content.match(/\.(mp4|mov|webm)/i)) content = `<video controls src="${content}"></video>`;
+            if(id) content = `<iframe class="yt-frame" style="width:100%; aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${id[1]}" allowfullscreen></iframe>\n${content}`;
+        } else if(content.match(/\.(jpg|jpeg|png|gif|webp)/i)) content = `<img src="${content}" onclick="window.open(this.src)">\n${content}`;
+        else if(content.match(/\.(mp4|mov|webm)/i)) content = `<video controls src="${content}"></video>\n${content}`;
+
         const userPic = data.pic || "https://www.gravatar.com/avatar/" + data.uid + "?d=identicon";
         div.innerHTML = `<img src="${userPic}" class="avatar" style="width:35px; height:35px;"><div style="flex:1;"><div style="font-size:0.65rem; font-weight:800; opacity:0.8; margin-bottom:4px;">${data.name}</div><div>${content}</div></div>`;
         box.appendChild(div); box.scrollTop = box.scrollHeight;
@@ -193,6 +211,7 @@
         const myPic = localStorage.getItem('zain_pic') || "https://www.gravatar.com/avatar/" + myID + "?d=identicon";
         pubnub.publish({ channel: "v8_chat_" + [myID, currentFid].sort().join("_"), message: { text: inp.value, uid: myID, name: document.getElementById('myName').innerText, pic: myPic } });
         inp.value = "";
+        inp.style.height = 'inherit'; // إعادة تصغير الصندوق بعد الإرسال
     }
 
     async function generateLink(input) {
